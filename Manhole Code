@@ -1,0 +1,59 @@
+
+#define TRIG_PIN D5 // Ultrasonic sensor Trigger pin
+#define ECHO_PIN D6 // Ultrasonic sensor Echo pin
+
+const int ledPin = D3;
+const int IrPin = D2;
+const int buzzerPin = D3;
+const int floatSensorPin = D1;
+
+// Variable to store the current state of the LED
+bool ledState = LOW;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  // Set the LED pin as output
+  pinMode(ledPin, OUTPUT);
+  // Set the button pin as input
+  pinMode(IrPin, INPUT);
+  // Set the buzzer pin as output
+  pinMode(buzzerPin, OUTPUT);
+  // Set the float sensor pin as input
+  pinMode(floatSensorPin, INPUT);
+}
+
+float getUltrasonicDistance() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  long duration = pulseIn(ECHO_PIN, HIGH);
+  return duration * 0.034 / 2;
+}
+
+void loop() {
+  float distance = getUltrasonicDistance();
+  // Read the current state of the button
+  bool IrState = digitalRead(IrPin);
+  // Read the current state of the float sensor
+  bool floatSensorState = digitalRead(floatSensorPin);
+  Serial.print("Ultrasonic Distance: "); Serial.print(distance); Serial.println(" cm");
+  Serial.print("IR Value: "); Serial.println(IrState);
+  Serial.print("Float Value: "); Serial.println(floatSensorState);
+  
+  // Check if the button is pressed or if the float sensor is triggered
+  if (IrState == LOW || floatSensorState == LOW || distance <= 15) {
+    // Turn on the LED
+    digitalWrite(ledPin, HIGH);
+    // Turn on the buzzer
+    digitalWrite(buzzerPin, HIGH);
+  } else {
+    // Turn off the LED
+    digitalWrite(ledPin, LOW);
+    // Turn off the buzzer
+    digitalWrite(buzzerPin, LOW);
+  }
+}
